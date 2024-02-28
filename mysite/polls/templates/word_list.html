@@ -1,0 +1,161 @@
+<HTML>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Words List</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>    
+        <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-7ymO4nGrkm372HoSbq1OY2DP4pEZnMiA+E0F3zPr+JQQtQ82gQ1HPY3QIVtztVua" crossorigin="anonymous"></script> -->
+        <style>
+            body {
+                background-color: #f8f9fa;
+                font-family: Arial, sans-serif;
+            }
+            .container {
+                margin-top: 20px;
+            }
+            h2 {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+            #translation, #sentenceDisplay, #wordList {
+                margin-top: 20px;
+                background-color: #fff;
+                border-radius: 5px;
+                padding: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .btn {
+                margin: 10px 0;
+            }
+            .btn-primary {
+                background-color: #007bff;
+                border-color: #007bff;
+            }
+            .btn-primary:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+            }
+            .form-control {
+                border-radius: 5px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse; /* 移除双边框 */
+            }
+            th, td {
+                border: 1px solid black; /* 添加黑色边框 */
+                padding: 8px; /* 添加一些内边距 */
+                text-align: left; /* 文本左对齐 */
+            }
+            th {
+                background-color: #f2f2f2; /* 表头背景颜色 */
+            }
+        </style>
+    </head>
+    
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="#">English Learning Assistant</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'polls:Input_Sentences' %}">Input Sentences</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'polls:words' %}">Words</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'polls:sentences' %}">Sentences</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <!-- <div class="banner">
+                <h3>Artificial Intelligence Assistant for English Learning</h3>
+                <a href="{% url 'polls:Input_Sentences' %}">Input_Sentences</a>|
+                <a href="{% url 'polls:words' %}">Words</a>|
+                <a href="{% url 'polls:sentences' %}">Sentences</a>
+            </div> -->
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- <h2>Words List</h2>
+                    <ol>
+                        {% if words %}
+                        {% for word in words %}
+                        <li>
+                            <form action="{% url 'polls:remove_word' word.id %}" method="post"></form>
+                            <strong>{{ word.word }}</strong> ({{ word.type }}) [{{ word.pronunciation }}]: {{ word.mean }}
+                                {% csrf_token %}
+                                <button type="submit">Remove</button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                        {% endif %}
+                    </ol> -->
+                    <h2>Words List</h2>
+                    {% if words %}
+                    <table class="table table-striped">
+                        <thead  class="thead-dark">
+                            <tr>
+                                <th scope="col">#</th> <!-- 表头添加序号列 -->
+                                <th scope="col">Word</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Pronunciation</th>
+                                <th scope="col">Meaning</th>
+                                <th scope="col">Add Time</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for word in words %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td> <!-- 显示序号 -->
+                                <td><strong>{{ word.word }}</strong></td>
+                                <td>{{ word.type }}</td>
+                                <td>{{ word.pronunciation }}</td>
+                                <td>{{ word.mean }}</td>
+                                <td>{{ word.add_date }}</td>
+                                <td>
+                                    <form action="{% url 'polls:remove_word' word.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button class="btn btn-primary btn-sm" type="submit">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-center">No words available.</p>
+                    {% endif %}
+
+                </div>
+            </div>
+            </div>
+    
+
+    <!-- <h1>Words List</h1>
+    <ol>
+        {% if words %}
+        {% for word in words %}
+        <li>
+            <strong>{{ word.word }}</strong> ({{ word.type }}) [{{ word.pronunciation }}]: {{ word.mean }}
+            <form action="{% url 'polls:remove_word' word.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Remove</button>
+            </form>
+        </li>
+        {% endfor %}
+        {% endif %}
+    </ol> -->
+</body>
+</html>

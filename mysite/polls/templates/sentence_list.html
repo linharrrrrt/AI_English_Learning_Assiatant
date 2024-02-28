@@ -1,0 +1,126 @@
+<HTML>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Sentences List</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>    
+        <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-7ymO4nGrkm372HoSbq1OY2DP4pEZnMiA+E0F3zPr+JQQtQ82gQ1HPY3QIVtztVua" crossorigin="anonymous"></script> -->
+        <style>
+            body {
+                background-color: #f8f9fa;
+                font-family: Arial, sans-serif;
+            }
+            .container {
+                margin-top: 20px;
+            }
+            h2 {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+            #translation, #sentenceDisplay, #wordList {
+                margin-top: 20px;
+                background-color: #fff;
+                border-radius: 5px;
+                padding: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .btn {
+                margin: 10px 0;
+            }
+            .btn-primary {
+                background-color: #007bff;
+                border-color: #007bff;
+            }
+            .btn-primary:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+            }
+            .form-control {
+                border-radius: 5px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse; /* 移除双边框 */
+            }
+            th, td {
+                border: 1px solid black; /* 添加黑色边框 */
+                padding: 8px; /* 添加一些内边距 */
+                text-align: left; /* 文本左对齐 */
+            }
+            th {
+                background-color: #f2f2f2; /* 表头背景颜色 */
+            }
+        </style>
+    </head>
+    
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="#">English Learning Assistant</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'polls:Input_Sentences' %}">Input Sentences</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'polls:words' %}">Words</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'polls:sentences' %}">Sentences</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+    <div class="container">
+        <h2 class="text-center mb-4">Sentences List</h2>
+        {% if sentences %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Sentence</th>
+                        <th scope="col">Mark</th>
+                        <th scope="col">Action1</th>
+                        <th scope="col">Action2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sentence in sentences %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ sentence.sentence }}</td>
+                        <td><form action="{% url 'polls:mark_sentence' sentence.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-info btn-sm">{{ sentence.learned|yesno:"Unmark,Mark" }}</button>
+                        </form>
+                    </td>
+                        <td>
+                            <form action="{% url 'polls:delete_sentence' sentence.id %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                            </td>
+                            
+                        <td>    
+                            <a href="{% url 'polls:view_sentence' sentence.id %}" class="btn btn-primary btn-sm">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center">No sentences available.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

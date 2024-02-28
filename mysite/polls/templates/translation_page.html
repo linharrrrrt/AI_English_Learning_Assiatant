@@ -1,0 +1,474 @@
+<HTML>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Translation Page</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+        <!-- <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script> -->
+        <!-- <script src="https://cdn.bootcss.com/popper.js/1.15.0/umd/popper.js"></script> -->
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>    
+        <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-7ymO4nGrkm372HoSbq1OY2DP4pEZnMiA+E0F3zPr+JQQtQ82gQ1HPY3QIVtztVua" crossorigin="anonymous"></script> -->
+        
+        <style>
+            body {
+                background-color: #f8f9fa;
+                font-family: Arial, sans-serif;
+            }
+            .container {
+                margin-top: 20px;
+            }
+            h2 {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+            #translation, #sentenceDisplay, #wordList {
+                margin-top: 20px;
+                background-color: #fff;
+                border-radius: 5px;
+                padding: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .btn {
+                margin: 10px 0;
+            }
+            .btn-primary {
+                background-color: #007bff;
+                border-color: #007bff;
+            }
+            .btn-primary:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+            }
+            .form-control {
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="#">English Learning Assistant</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'polls:Input_Sentences' %}">Input Sentences</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'polls:words' %}">Words</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'polls:sentences' %}">Sentences</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            
+            <!-- <div class="banner">
+                <h3>Artificial Intelligence Assistant for English Learning</h3>
+                <a href="{% url 'polls:Input_Sentences' %}">Input_Sentences</a>|
+                <a href="{% url 'polls:words' %}">Words</a>|
+                <a href="{% url 'polls:sentences' %}">Sentences</a>
+            </div> -->
+            <div class="row">
+                <div class="col">
+                    <form>
+                        <div class="form-group">
+                            <label for="newSentence">Input Your Sentence Here:</label>
+                            <textarea class="form-control" id="newSentence" rows="5"></textarea>
+                        </div>
+                    </form>
+                    <button id="addSentence" type="button" class="btn btn-primary">Add Sentence</button>
+                    <button id="addMultipleSentences" type="button" class="btn btn-primary">Add Multiple Sentences</button>
+                    <button id="getSentence" type="button" class="btn btn-success">Get Unmark Sentence</button>
+                </div>
+            </div>
+            <div id="sentenceDisplay" class="mt-4"></div>
+            <button id="add" type="button" class="btn btn-primary">Look Up the Word/s</button>
+            <button id="getSentence_by_mark_sentence" type="button" class="btn btn-primary">Mark and Get Another</button>
+            <div class="mt-4"><ol id="wordList" class="list-styled"></ol></div>
+        </div>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+        $(document).ready(function(){
+            $('#add').click(function(){
+                var wordText = window.getSelection().toString();
+                var sentenceText = $('#sentence').text(); // 获取句子文本
+                if (wordText == '') {
+                    alert('Please select word/s first.');
+                    return;
+                };
+                if (sentenceText == '') {
+                    alert('Please get a sentence first.');
+                    return;
+                };
+                $.ajax({
+                    url: '/polls/add_word/', // 后端处理添加单词的URL
+                    type: 'POST',
+                    data: {
+                        'word': wordText,
+                        'sentence': sentenceText,
+                    },
+                    headers: {'X-CSRFToken': csrftoken },
+                    success: function(data) {
+                        // 成功添加单词后的回调函数
+                        // 假设后端返回的数据格式为 { word: "word", type: "type", pronunciation: "pronunciation", mean: "mean" }
+                        var newWordItem = '<li>' +
+                            '<span>' + data.word + '</span> ' +
+                            '<span>(' + data.type + ')</span> ' +
+                            '<span>' + data.pronunciation + '</span> ' +
+                            '<span>' + data.mean + '</span> ' +
+                            // '<button type="button" class="remove btn btn-link btn-sm">Remove</button>' +
+                            '</li>';
+                        $('#wordList').prepend(newWordItem);
+                    },
+                    error: function(xhr, status, error) {
+                        // 错误的回调函数
+                        alert('Error adding word.');
+                    }
+                });
+                // if(selectedText) {
+                //     $('#wordList').append('<li><span>' + selectedText + '</span><button class="remove">Remove</button><button class="addWord">add_move</button></li> ');
+                // }
+            });
+
+            $(document).on('click', '.remove', function(){
+                $(this).parent().remove();
+            });
+
+            $('#translate').click(function(){
+                var text = $('#sentence').val();
+                $.ajax({
+                    url: '/polls/translate/',
+                    type: 'POST',
+                    data: {
+                        'sentence': text,
+                        // 其他数据
+                    },
+                    headers: {'X-CSRFToken': '{{csrf_token}}' },
+                    success: function(data) {
+                        $('#translation').text(data.translation);
+                        // 成功的回调函数
+                    },
+                    error: function(xhr, status, error) {
+                        // 错误的回调函数
+                    }
+                });
+            });
+
+            $('#addSentence').click(function(){
+                var newSentenceText = $('#newSentence').val();
+                if (newSentenceText == '') {
+                    alert('Please input your sentence.');
+                    return;
+                };
+                $.ajax({
+                    url: '/polls/add_sentence/', // 后端处理添加句子的URL
+                    type: 'POST',
+                    data: {
+                        'sentence': newSentenceText,
+                    },
+                    headers: {'X-CSRFToken': csrftoken },
+                    success: function(data) {
+                        if(data.sentence) {
+                            $('#sentenceDisplay').html(
+                                // '<div class="d-none"><strong>Sentence:</strong> <p id = \'sentence_id\'>' + data.id + '</p></div>' +
+                                '<div class="d-none"><strong>Sentence:</strong> <p id = \'sentence\'>' + data.sentence + '</p></div>' +
+                                '<strong>Sentence With Syntactic Aanalysis:</strong> <br>' + data.syntactic_analysis.replace(/\//g, '│') + '<br><br>' +
+                                '<strong>Translation:</strong> <br>' + data.translation + '<br><br>' +
+                                '<strong>Added on:</strong> ' + data.add_date
+                            );
+                            $('#wordList').empty(); // 清空现有单词列表
+                        } else {
+                            $('#sentenceDisplay').text('No sentence available.');
+                        }
+                    }
+                });
+            });
+
+            $('#addMultipleSentences').click(function(){
+                var newSentenceText = $('#newSentence').val();
+                if (newSentenceText == '') {
+                    alert('Please input your sentence.');
+                    return;
+                };
+                newSentenceTextlist = newSentenceText.split('\n');
+                newSentenceTextlist.forEach(function(sentence){
+                    if (sentence == '') {
+                        return;
+                    };
+                    // $('#sentenceDisplay').html(
+                    //                 // '<p>'+data.success+'</p>'+
+                    //                 '<p>'+sentence+'</p>'
+                    //             );
+                    $.ajax({
+                        url: '/polls/addMultipleSentences/', // 后端处理添加句子的URL
+                        type: 'POST',
+                        timeout: 100000, // 设置超时时长为100秒（100000毫秒）
+                        data: {
+                            'sentence': sentence,
+                        },
+                        headers: {'X-CSRFToken': csrftoken },
+                        success: function(data) {
+                            if(data.success) {
+                                var informationHTML = '<p>'+data.success+'</p>'+
+                                    '<p>'+sentence+'</p>';
+                                $('#sentenceDisplay').append(informationHTML);
+                                $('#wordList').empty(); // 清空现有单词列表
+                            } else {
+                                $('#sentenceDisplay').text('No sentence available.');
+                            }
+                        }
+                    });
+                });
+                // $.ajax({
+                //     url: '/polls/addMultipleSentences/', // 后端处理添加句子的URL
+                //     type: 'POST',
+                //     timeout: 100000, // 设置超时时长为100秒（100000毫秒）
+                //     data: {
+                //         'sentence': newSentenceText,
+                //     },
+                //     headers: {'X-CSRFToken': csrftoken },
+                //     success: function(data) {
+                //         if(data.success) {
+                //             $('#sentenceDisplay').html(
+                //                 '<p>'+data.success+'</p>'
+                //             );
+                //             $('#wordList').empty(); // 清空现有单词列表
+                //         } else {
+                //             $('#sentenceDisplay').text('No sentence available.');
+                //         }
+                //     }
+                // });
+            });
+
+            // 获取句子的事件处理
+            $('#getSentence').click(function(){
+                $.ajax({
+                    url: '/polls/get_sentence/', // 后端处理获取句子的URL
+                    type: 'POST', // 修改为使用POST请求
+                    data: {}, // 如果需要发送数据，可以在这里添加
+                    headers: {'X-CSRFToken': csrftoken }, // 包含CSRF令牌
+                    // success: function(data) {
+                    //     if(data.sentence) {
+                    //         $('#sentenceDisplay').html(
+                    //             '<div class="d-none" >Sentence: <p id = \'scentence\'>' + data.sentence + '</p></div>' +
+                    //             'Sentence With Syntactic_analysis: <br>' + data.syntactic_analysis.replace(/\//g, '│') + '<br><br>' +
+                    //             'Translation: <br>' + data.translation + '<br>' +
+                    //             'Added on: ' + data.add_date
+                    //         );
+                    //     } else {
+                    //         $('#sentenceDisplay').text('No sentence available.');
+                    //     }
+                    // },
+                    success: function(data) {
+                        // 解析sentence JSON字符串
+                        var sentences = JSON.parse(data.sentence);
+                        var words = JSON.parse(data.words);
+
+                        if(sentences.length > 0) {
+                            var sentenceObj = sentences[0].fields; // 获取fields属性，其中包含实际的句子数据
+                            // 将其转换为Date对象
+                            const date = new Date(sentenceObj.add_date);
+
+                            // 使用toLocaleString来格式化日期时间
+                            const options = {
+                            year: 'numeric', month: 'long', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit', second: '2-digit',
+                            timeZoneName: 'short'
+                            };
+                            const formattedDate = date.toLocaleString('en-US', options);
+                            $('#sentenceDisplay').html(
+                                // '<div class="d-none"><strong>Sentence:</strong> <p id="sentence_id">' + sentences.id + '</p></div>' +
+                                '<div class="d-none"><strong>Sentence:</strong> <p id="sentence">' + sentenceObj.sentence + '</p></div>' +
+                                '<strong>Sentence With Syntactic Aanalysis:</strong> <br>' + sentenceObj.syntactic_analysis.replace(/\//g, '│') + '<br><br>' +
+                                '<strong>Translation:</strong> <br>' + sentenceObj.translation + '<br><br>' +
+                                '<strong>Added on:</strong> ' + formattedDate
+                            );
+                            $('#wordList').empty(); // 清空现有单词列表
+                        } else {
+                            $('#sentenceDisplay').text('No sentence available.');
+                        }
+
+                        // 检查words是否是一个非空数组
+                        if(words.length > 0) {
+                            words.forEach(function(wordItem) {
+                                var wordObj = wordItem.fields; // 获取fields属性，其中包含实际的单词数据
+                                var wordHtml = '<li>' +
+                                    '<span>' + wordObj.word + '</span> ' +
+                                    '<span>(' + wordObj.type + ')</span> ' +
+                                    '<span>' + wordObj.pronunciation + '</span> ' +
+                                    '<span>' + wordObj.mean + '</span> ' +
+                                    // '<button type="button" class="remove btn btn-link btn-sm">Remove</button>' +
+                                    '</li>';
+                                $('#wordList').append(wordHtml); // 添加新单词到列表
+                            });
+                        }
+                    },
+
+                    error: function(xhr, status, error) {
+                        // 错误的回调函数
+                        $('#sentenceDisplay').text('Error fetching sentence.');
+                    }
+                });
+            });
+
+            // 获取句子的事件处理
+            $('#getSentence_by_mark_sentence').click(function(){
+                var sentence = $('#sentence').text(); // 获取句子文本
+                if (sentence == '') {
+                    alert('Please get a sentence first.');
+                    return;
+                };
+                $.ajax({
+                    url: '/polls/getSentence_by_mark_sentence/', // 后端处理获取句子的URL
+                    type: 'POST', // 修改为使用POST请求
+                    data: {'sentence':sentence}, // 如果需要发送数据，可以在这里添加
+                    headers: {'X-CSRFToken': csrftoken }, // 包含CSRF令牌
+                    // success: function(data) {
+                    //     if(data.sentence) {
+                    //         $('#sentenceDisplay').html(
+                    //             '<div class="d-none" >Sentence: <p id = \'scentence\'>' + data.sentence + '</p></div>' +
+                    //             'Sentence With Syntactic_analysis: <br>' + data.syntactic_analysis.replace(/\//g, '│') + '<br><br>' +
+                    //             'Translation: <br>' + data.translation + '<br>' +
+                    //             'Added on: ' + data.add_date
+                    //         );
+                    //     } else {
+                    //         $('#sentenceDisplay').text('No sentence available.');
+                    //     }
+                    // },
+                    success: function(data) {
+                        // 解析sentence JSON字符串
+                        var sentences = JSON.parse(data.sentence);
+                        var words = JSON.parse(data.words);
+
+                        if(sentences.length > 0) {
+                            var sentenceObj = sentences[0].fields; // 获取fields属性，其中包含实际的句子数据
+                            // 将其转换为Date对象
+                            const date = new Date(sentenceObj.add_date);
+
+                            // 使用toLocaleString来格式化日期时间
+                            const options = {
+                            year: 'numeric', month: 'long', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit', second: '2-digit',
+                            timeZoneName: 'short'
+                            };
+                            const formattedDate = date.toLocaleString('en-US', options);
+                            $('#sentenceDisplay').html(
+                                // '<div class="d-none"><strong>Sentence:</strong> <p id="sentence_id">' + sentenceObj.id + '</p></div>' +
+                                '<div class="d-none"><strong>Sentence:</strong> <p id="sentence">' + sentenceObj.sentence + '</p></div>' +
+                                '<strong>Sentence With Syntactic Aanalysis:</strong> <br>' + sentenceObj.syntactic_analysis.replace(/\//g, '│') + '<br><br>' +
+                                '<strong>Translation:</strong> <br>' + sentenceObj.translation + '<br><br>' +
+                                '<strong>Added on:</strong> ' + formattedDate
+                            );
+                            $('#wordList').empty(); // 清空现有单词列表
+                        } else {
+                            $('#sentenceDisplay').text('No sentence available.');
+                        }
+
+                        // 检查words是否是一个非空数组
+                        if(words.length > 0) {
+                            words.forEach(function(wordItem) {
+                                var wordObj = wordItem.fields; // 获取fields属性，其中包含实际的单词数据
+                                var wordHtml = '<li>' +
+                                    '<span>' + wordObj.word + '</span> ' +
+                                    '<span>(' + wordObj.type + ')</span> ' +
+                                    '<span>' + wordObj.pronunciation + '</span> ' +
+                                    '<span>' + wordObj.mean + '</span> ' +
+                                    // '<button type="button" class="remove btn btn-link btn-sm">Remove</button>' +
+                                    '</li>';
+                                $('#wordList').append(wordHtml); // 添加新单词到列表
+                            });
+                        }
+                    },
+
+                    error: function(xhr, status, error) {
+                        // 错误的回调函数
+                        $('#sentenceDisplay').text('Error fetching sentence.');
+                    }
+                });
+            });
+
+
+            // // 获取句子的事件处理
+            // $('#getSentence').click(function(){
+            //     $.ajax({
+            //         url: 'get_sentence/', // 后端处理获取句子的URL
+            //         type: 'GET', // 使用GET请求
+            //         success: function(data) {
+            //             if(data.sentence) {
+            //                 $('#sentenceDisplay').html(
+            //                     'Sentence: ' + data.sentence + '<br>' +
+            //                     'Translation: ' + data.translation + '<br>' +
+            //                     'Added on: ' + data.add_date
+            //                 );
+            //             } else {
+            //                 $('#sentenceDisplay').text('No sentence available.');
+            //             }
+            //         },
+            //         error: function(xhr, status, error) {
+            //             // 错误的回调函数
+            //             $('#sentenceDisplay').text('Error fetching sentence.');
+            //         }
+            //     });
+            // });
+
+            // 单词列表中的添加单词事件处理
+            $(document).on('click', '.addWord', function(){
+                var wordText = $(this).siblings('span').text(); // 获取单词文本
+                var sentenceText = $('#scentence').text(); // 获取句子文本
+                $.ajax({
+                    url: '/polls/add_word/', // 后端处理添加单词的URL
+                    type: 'POST',
+                    data: {
+                        'word': wordText,
+                        'sentence': sentenceText,
+                    },
+                    headers: {'X-CSRFToken': csrftoken },
+                    success: function(data) {
+                        // 成功添加单词后的回调函数
+                        // 假设后端返回的数据格式为 { word: "word", type: "type", pronunciation: "pronunciation", mean: "mean" }
+                        var newWordItem = '<li>' +
+                            '<span>' + data.word + '</span> ' +
+                            '<span>(' + data.type + ')</span> ' +
+                            '<span>' + data.pronunciation + '</span> ' +
+                            '<span>' + data.mean + '</span> ' +
+                            // '<button class="remove">Remove</button>' +
+                            '</li>';
+                        $('#wordList').append(newWordItem);
+                    },
+                    error: function(xhr, status, error) {
+                        // 错误的回调函数
+                        alert('Error adding word.');
+                    }
+                });
+            });
+
+
+        });
+    </script>
+</body>
+</html>
