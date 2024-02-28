@@ -1,0 +1,2 @@
+# AI_English_learning_Assiatant
+AI_English_learning_Assiatant, 使用AI帮助学习英语，通过句子学习英语单词。
