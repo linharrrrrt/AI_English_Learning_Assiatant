@@ -67,6 +67,7 @@ def add_word(request):
         mean = word_information[3]
         new_word = Words.objects.create(word=word, pronunciation=pronunciation, type=type, mean=mean, sentence=sentence)
         data = {
+            'id': new_word.id,
             'word': new_word.word,
             'pronunciation': new_word.pronunciation,
             'type': new_word.type,
