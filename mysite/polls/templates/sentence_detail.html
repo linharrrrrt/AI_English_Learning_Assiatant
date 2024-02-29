@@ -146,7 +146,7 @@
                         // 成功添加单词后的回调函数
                         // 假设后端返回的数据格式为 { word: "word", type: "type", pronunciation: "pronunciation", mean: "mean" }
                         var newWordItem = '<li>' +
-                            '<form action=\"polls/'+word.id+'/remove_word\" method=\"post\" class=\"inline\">'+
+                            '<form action=\"polls/'+data.id+'/remove_word\" method=\"post\" class=\"inline\">'+
                             '<span>' + data.word + '</span> ' +
                             '<span>(' + data.type + ')</span> ' +
                             '<span>' + data.pronunciation + '</span> ' +
@@ -155,7 +155,7 @@
                             '<button type=\"submit\" class=\"btn remove btn-link btn-sm\">Remove</button></form>'+
                             // '<button type="button" class="remove btn btn-link btn-sm">Remove</button>' +
                             '</li>';
-                        $('#wordList').append(newWordItem);
+                        $('#wordList').prepend(newWordItem);
                     },
                     error: function(xhr, status, error) {
                         // 错误的回调函数
