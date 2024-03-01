@@ -74,8 +74,8 @@ http://127.0.0.1:8000/admin/
 ## 联系作者
 Email: 227229218@qq.com  
 如果帮到了你，感谢您的赞助（❥(^_-)：  
-If this is helpful to you, Buy me a coffe（❥(^_-):    
-![Buy me a coffe 1（❥(^_-)](1f6b4ba7a6dcf3c14238b66c0433492.jpg)  
+If this is helpful to you, Buy me a coffe（❥(^_-):  
+<img src="1f6b4ba7a6dcf3c14238b66c0433492.jpg" alt="Buy me a coffe 1（❥(^_-)" width="150" >
 
 ## 版权声明
 本系统服从GNU GPL开源协议。
